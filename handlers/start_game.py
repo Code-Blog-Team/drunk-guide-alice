@@ -7,7 +7,7 @@ bp = Blueprint()
 
 
 @bp.message_handler(10, ["lets_start"])
-def start_game_handler(req: AliceRequest) -> AliceResponse:
+async def start_game_handler(req: AliceRequest) -> AliceResponse:
     current_dialog = req.state.session.get("current_dialog", None)
     ans = AliceResponse()
     if not current_dialog or current_dialog == "start_game":
@@ -23,6 +23,6 @@ def start_game_handler(req: AliceRequest) -> AliceResponse:
         ans.session_state["right_answer"] = right_answer
 
     else:
-        ans.text = "Ошибка!"
+        ans.response.text = "Ошибка!"
 
     return ans
