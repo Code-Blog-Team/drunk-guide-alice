@@ -18,6 +18,7 @@ from torchfile import load as load_lua
 
 from net import Vgg16
 
+
 def tensor_load_rgbimage(filename, size=None, scale=None, keep_asp=False):
     img = Image.open(filename).convert('RGB')
     if size is not None:
@@ -77,10 +78,11 @@ def add_imagenet_mean_batch(batch):
     mean[:, 2, :, :] = 123.680
     return batch + Variable(mean)
 
+
 def imagenet_clamp_batch(batch, low, high):
-    batch[:,0,:,:].data.clamp_(low-103.939, high-103.939)
-    batch[:,1,:,:].data.clamp_(low-116.779, high-116.779)
-    batch[:,2,:,:].data.clamp_(low-123.680, high-123.680)
+    batch[:, 0, :, :].data.clamp_(low - 103.939, high - 103.939)
+    batch[:, 1, :, :].data.clamp_(low - 116.779, high - 116.779)
+    batch[:, 2, :, :].data.clamp_(low - 123.680, high - 123.680)
 
 
 def preprocess_batch(batch):
@@ -96,7 +98,8 @@ def init_vgg16(model_folder):
     if not os.path.exists(os.path.join(model_folder, 'vgg16.weight')):
         if not os.path.exists(os.path.join(model_folder, 'vgg16.t7')):
             os.system(
-                'wget http://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7 -O ' + os.path.join(model_folder, 'vgg16.t7'))
+                'wget http://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7 -O ' + os.path.join(
+                    model_folder, 'vgg16.t7'))
         vgglua = load_lua(os.path.join(model_folder, 'vgg16.t7'))
         vgg = Vgg16()
         for (src, dst) in zip(vgglua.parameters()[0], vgg.parameters()):
@@ -110,11 +113,11 @@ class StyleLoader():
         self.style_size = style_size
         self.files = os.listdir(style_folder)
         self.cuda = cuda
-    
+
     def get(self, i):
-        idx = i%len(self.files)
+        idx = i % len(self.files)
         filepath = os.path.join(self.folder, self.files[idx])
-        style = tensor_load_rgbimage(filepath, self.style_size)    
+        style = tensor_load_rgbimage(filepath, self.style_size)
         style = style.unsqueeze(0)
         style = preprocess_batch(style)
         if self.cuda:

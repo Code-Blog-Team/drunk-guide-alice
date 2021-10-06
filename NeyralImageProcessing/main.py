@@ -8,20 +8,20 @@
 ## LICENSE file in the root directory of this source tree 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import numpy as np
-import os
 import sys
-import time
+
+import numpy as np
 import torch
-import utils
-from net import Net, Vgg16
-from option import Options
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision import transforms
-from tqdm import tqdm, trange
+from tqdm import trange
+
+import utils
+from net import Net, Vgg16
+from option import Options
 
 
 def main():

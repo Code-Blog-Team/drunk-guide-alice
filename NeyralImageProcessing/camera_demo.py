@@ -1,4 +1,4 @@
-import os
+import cv2
 import cv2
 import numpy as np
 import torch
@@ -6,8 +6,8 @@ from torch.autograd import Variable
 
 from net import Net
 from option import Options
-import utils
 from utils import StyleLoader
+
 
 def run_demo(args, mirror=False):
 	style_model = Net(ngf=args.ngf)
