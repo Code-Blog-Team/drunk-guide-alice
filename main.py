@@ -2,7 +2,9 @@ from aiohttp import web
 from enjalice.routers import Dispatcher
 from enjalice.response import AliceResponse, text
 from enjalice.request import AliceRequest
+from dotenv import load_dotenv
 
+load_dotenv()
 
 async def handle(request: web.Request):
     data = await request.json()
