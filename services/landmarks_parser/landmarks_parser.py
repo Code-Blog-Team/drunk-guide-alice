@@ -64,7 +64,7 @@ class LandmarkParser:
                 )
 
             self.session.add(exist)
-            await self.session.execute()
+            self.session.commit()
             return exist.id_landmark
         except Exception as err:
             raise Exception('LandmarkParser.__save_landmark', err.__class__, 'occurred.')
@@ -77,14 +77,14 @@ class LandmarkParser:
             if exists:
                 for fact in exists:
                     self.session.delete(fact)
-                await self.session.execute()
+                await self.session.commit()
             for fact in facts:
                 new_fact = Fact(
                     description=fact,
                     id_landmark=landmark_id
                 )
                 self.session.add(new_fact)
-            await self.session.execute(exists)
+            await self.session.commit()
         except Exception as err:
             raise Exception('LandmarkParser.__save_landmark_facts', err.__class__, 'occurred.')
 
@@ -94,8 +94,9 @@ class LandmarkParser:
         if images_urls is None:
             images_urls = []
         try:
-            for i, url in images_urls:
-                urlretrieve(url, images[i])
+            for i, url in enumerate(images_urls):
+                k = urlretrieve(url, images[i])
+
         except Exception as err:
             raise Exception('LandmarkParser.__save_landmark_images', err.__class__, 'occurred.')
 
