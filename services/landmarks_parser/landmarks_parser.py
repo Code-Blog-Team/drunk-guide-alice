@@ -11,7 +11,7 @@ from constants.landmark_parser_constants import TARGET_URL, MAIN_PAGE
 from utils.text_helpers import make_slug
 
 
-class LandmarkParser(object):
+class LandmarkParser:
     def __init__(self):
         dbase = Engine()
         engine = dbase.__engine
@@ -69,7 +69,9 @@ class LandmarkParser(object):
         except Exception as err:
             raise Exception('LandmarkParser.__save_landmark', err.__class__, 'occurred.')
 
-    async def __save_landmark_facts(self, landmark_id, facts=[]):
+    async def __save_landmark_facts(self, landmark_id, facts=None):
+        if facts is None:
+            facts = []
         try:
             exists = await self.session.query(Fact).filter_by(Fact.id_landmark == landmark_id)
             if exists:
@@ -82,14 +84,18 @@ class LandmarkParser(object):
                     id_landmark=landmark_id
                 )
                 self.session.add(new_fact)
-            await self.session.execute()
+            await self.session.execute(exists)
         except Exception as err:
             raise Exception('LandmarkParser.__save_landmark_facts', err.__class__, 'occurred.')
 
-    async def __save_landmark_images(self, images_urls=[], images=[]):
+    async def __save_landmark_images(self, images_urls=None, images=None):
+        if images is None:
+            images = []
+        if images_urls is None:
+            images_urls = []
         try:
             for i, url in images_urls:
-                await urlretrieve(url, images[i])
+                urlretrieve(url, images[i])
         except Exception as err:
             raise Exception('LandmarkParser.__save_landmark_images', err.__class__, 'occurred.')
 
