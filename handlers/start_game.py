@@ -12,6 +12,7 @@ async def start_game_handler(req: AliceRequest) -> AliceResponse:
     ans = AliceResponse()
     if not current_dialog or current_dialog == "start_game":
         # TODO: получаем из БД случайное место, получаем картинку и описание этого места
+
         text = "TODO NOW!"
         right_answer = "TODO NOW!"
         ans.response.text = text

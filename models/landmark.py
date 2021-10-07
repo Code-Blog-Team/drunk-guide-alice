@@ -1,11 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, ARRAY
 from sqlalchemy.orm import relationship
 
-from db.engine import Engine
-
-dbase = Engine()
-engine = dbase.__engine
-Base = dbase.__declarative_base
+from models.main import Base
 
 
 class Landmark(Base):
@@ -18,6 +14,3 @@ class Landmark(Base):
     description = Column(Text, nullable=False)
     images = ARRAY(String),
     fact = relationship('Fact')
-
-
-Base.metadatBase.metadata.create_all(engine)

@@ -1,5 +1,7 @@
 import os
 import pathlib
+from typing import List
+
 from sqlalchemy.orm import sessionmaker
 from bs4 import BeautifulSoup as BS
 from urllib.request import urlopen, urlretrieve
@@ -11,10 +13,19 @@ from constants.landmark_parser_constants import TARGET_URL, MAIN_PAGE
 from utils.text_helpers import make_slug
 
 
+class LandmarkUrl:
+    def __init__(self, name: str, source: str, images: List[str], images_src: List[str], description: str, facts: List[str]):
+        self.name = name
+        self.source = source
+        self.images = images
+        self.images_src = images_src
+        self.description = description
+        self.facts = facts
+
 class LandmarkParser:
     def __init__(self):
         dbase = Engine()
-        engine = dbase.__engine
+        engine = dbase.engine
         session = sessionmaker(bind=engine)
         self.session = session()
         self.__parser = 'html.parser'
@@ -22,34 +33,34 @@ class LandmarkParser:
     async def get_landmarks_list(self):
         result = []
         try:
-            resp = await urlopen(TARGET_URL + MAIN_PAGE).read()
-            html = await BS(resp, self.__parser)
+            resp = urlopen(TARGET_URL + MAIN_PAGE).read()
+            html = BS(resp, self.__parser)
             items = html.select('.contentpagetitle')
             for item in items:
                 name = item.text
-                source = MAIN_PAGE + item['href']
-                f_resp = await urlopen(source).read()
-                f_html = await BS(f_resp, self.__parser)
+                source = TARGET_URL + item['href']
+                f_resp = urlopen(source).read()
+                f_html = BS(f_resp, self.__parser)
                 container = f_html.select('.contentpaneopen')[1]
                 images_src = [TARGET_URL + image['src'] for image in container.select('img')]
-                images = [os.path.join(pathlib.Path().parent.parent.resolve(), os.getenv('IMAGE_DIRECTORY')) + image['src'] for image in container.select('img')]
+                images = [os.path.join(pathlib.Path().parent.parent.resolve(), "images") + image['src'] for image in container.select('img')]
                 facts = [p.text for p in container.select('p')]
                 description = facts.pop(0)
-                result.append({
+                result.append(LandmarkUrl(
                     name,
                     source,
                     images,
                     images_src,
                     description,
                     facts,
-                })
+                ))
             return result
         except Exception as err:
             raise Exception('LandmarkParser.get_landmarks_list', err.__class__, 'occurred.')
 
     async def __save_landmark(self, d_landmark):
         try:
-            exist = await self.session.query(Landmark).filter_by(Landmark.slug == make_slug(d_landmark.name)).one()
+            exist = await self.session.query(Landmark).filter(Landmark.slug == make_slug(d_landmark.name)).one()
             if exist:
                 exist.source = d_landmark.source
                 exist.images = d_landmark.images
